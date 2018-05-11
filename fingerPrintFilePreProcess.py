@@ -11,7 +11,7 @@ def hex_have_two_sub_convert_to_decimal(hex_have_two):
 
 def main():
     ISTEST = 0
-    file_name = "lysfinger.txt"
+    file_name = "./fingerPrintFiles/stjfinger.txt"  # ===========>  This is the name of input finger_print file
     start_bit = "0:UART: RX/TX\n"
     stop_bit = "0:UART: RX/TX\n"
     with open(file_name) as fp_file:
@@ -58,7 +58,7 @@ def main():
         # rewrite the whole file again:
         image_one_hot = []
         image_binary_one_hot = []
-        with open("finger_new.txt", 'w+') as newfp_file:
+        with open("./fingerPrintFiles/finger_new.txt", 'w+') as newfp_file:
             byte_count = -26
             out_count = 0
             for item in the_whole_file_binary:
