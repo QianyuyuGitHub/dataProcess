@@ -1,0 +1,8 @@
+All images are rotated.
+
+To make sure all image will have the same size to other corresponding rotation copies, some blank margin will be add around the edges. 
+
+All file naming follow the same rule:
+
+countNumber_degreeClockCount(0-360)
+

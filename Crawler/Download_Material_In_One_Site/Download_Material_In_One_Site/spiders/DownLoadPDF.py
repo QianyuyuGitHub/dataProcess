@@ -1,3 +1,7 @@
+import urllib.request as ul
+# ul.urlretrieve ("http://www.example.com/songs/mp3.mp3", "mp3.mp3")
+import scrapy
+
 #!/usr/bin/python
 import scrapy
 
@@ -10,8 +14,6 @@ import scrapy
 # sys.argv = ['scrapy', 'shell', 'http://scrapy.org']
 # execute()
 
-
-
 class QuotesSpider(scrapy.Spider):
     name = "quotes"
     start_urls = [
@@ -21,7 +23,6 @@ class QuotesSpider(scrapy.Spider):
     def start_requests(self):
         urls = [
             'http://scis.scichina.com/ssi2018.html',
-            # 'http://quotes.toscrape.com/page/2/',
         ]
         for url in urls:
             yield scrapy.Request(url=url, callback=self.parse)

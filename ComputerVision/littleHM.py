@@ -1,6 +1,7 @@
 import torch as pytc
 import numpy as np
 from PIL import Image
+import matplotlib.pyplot as plt
 '''
 This file is the homework of segmentation
 '''
@@ -170,6 +171,7 @@ def Expectation_Maximization_clustring(data_list, classes_expect_to_divide):
     for step in range(rounds):
         data_in_group = []
         data_in_group_index = []
+        data_with_group_label_not_RGB = []  # (400*400, 1)
         for i in range(classes_now_to_divide):
             data_in_group.append([])
             data_in_group_index.append([])
@@ -183,7 +185,7 @@ def Expectation_Maximization_clustring(data_list, classes_expect_to_divide):
                     max = possibility_of_all_instance[index][j]
                     max_index = j
             group_tag_list.append(max_index)
-        print(group_tag_list)
+        print("Group Tag:", group_tag_list)
 
         for class_tag in range(classes_now_to_divide):
             for index, tag in enumerate(group_tag_list):
@@ -214,14 +216,49 @@ def Expectation_Maximization_clustring(data_list, classes_expect_to_divide):
                                                                 classes_now_to_divide)
         print("Possibility:", possibility_of_all_instance)
 
+        for data_label in group_tag_list:
+            data_with_group_label_not_RGB.append(data_label*(255//classes_expect_to_divide))
+
+        newImage = []
+        for i in range(400):
+            newImage.append([])
+            for j in range(400):
+                newImage[i].append(group_tag_list[i*400+j])
+        # group = lambda group_tag_list, size: [group_tag_list[i:i + size] for i in range(0, len(group_tag_list), size)]
+        # data_with_group_label_not_RGB = np.asarray(data_with_group_label_not_RGB)
+        # data_with_group_label_not_RGB.reshape(400, 400) ####this is not portable
+        # print(data_with_group_label_not_RGB)
+        plt.matshow(newImage, cmap='tab10')
+        # plt.show()
+        plt.savefig(str(step)+'.png')
+
 def main():
     data_test1 = [[1.,2.,3.], [34.,67.,90.], [3.,4.,5.], [4.,5.,6.], [22.,34.,15.], [1.,7.,30.], [0.0,0.0,0.0]]  # size 7
     # print(get_theta(data))
     im = Image.open('./dog1.jpg')
-    print(type(im))
-    # im.show()
+    matrix = np.array(im.getdata()).reshape(400*400, -1)
+    print(np.shape(matrix))
 
-    # Expectation_Maximization_clustring(data, 5)
+    # for i in range(400):
+    #     newMat.append([])
+    #     for j in range(400):
+    #         newMat[i].append(0)
+
+    data_raw = []
+    for k in range(3):
+        newMat = []
+        for i in range(400):
+            newMat.append([])
+            for j in range(400):
+                newMat[i].append(matrix[i*400+j][0])
+        data_raw.append(newMat)
+    print("shape of newMat:", np.shape(newMat))
+    print(data_raw)
+
+    # plt.matshow(newMat, cmap='gist_gray')#, interpolation='nearest')
+    # plt.show()
+
+    Expectation_Maximization_clustring(matrix, 5)
 
 
 if __name__ == '__main__':
