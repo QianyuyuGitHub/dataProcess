@@ -6,6 +6,7 @@ import matplotlib
 from numpy.random import beta
 from PIL import Image, ImageFont, ImageDraw, ImageEnhance
 import colorsys
+import os
 
 class svdClassRGB:
     def __init__(self, R, G, B):
@@ -189,14 +190,15 @@ class SVD_Diag:
         plt.title("Theta Distribution of RGB Channels")
         plt.show()
 
-    def RGB_dot(self):
+    def RGB_dot(self, stop=-1, name=''):
         plt.rcParams['axes.unicode_minus'] = False
         fig, ax = plt.subplots()
-        ax.plot(range(len(self.SR)), self.SR, 'r')
-        ax.plot(range(len(self.SG)), self.SG, 'g')
-        ax.plot(range(len(self.SB)), self.SB, 'b')
-        ax.set_title('Theta Distribution of RGB Channels')
+        ax.plot(range(len(self.SR[:stop])), self.SR[:stop], 'r')
+        ax.plot(range(len(self.SG[:stop])), self.SG[:stop], 'g')
+        ax.plot(range(len(self.SB[:stop])), self.SB[:stop], 'b')
+        ax.set_title('Singular Value Distribution of '+name)
         plt.show()
+        return self.SR[:stop], self.SG[:stop], self.SB[:stop]
 
     def Rank(self, k, Show=False, Save=False):
         DiagR = np.zeros((self.row, self.col))
@@ -229,7 +231,9 @@ class SVD_Diag:
             im.save("./results/" +"Rank_"+ str(k) + ".jpg", "JPEG")
         return arr_newIM
 
-    def FisrtRank(self, k, ShowFrist=False, Save=False):
+    def FisrtRank(self, k, ShowFrist=False, Save=False, SavePath='./first'):
+        os.makedirs(SavePath, exist_ok=True)
+        os.makedirs(SavePath)
         DiagR = np.zeros((self.row, self.col))
         DiagG = np.zeros((self.row, self.col))
         DiagB = np.zeros((self.row, self.col))
@@ -260,10 +264,11 @@ class SVD_Diag:
         if ShowFrist:
             im.show()
         if Save:
-            im.save("./first/"+str(k) + "First_Rank_" + ".jpg", "JPEG")
+            im.save(SavePath+str(k) + "First_Rank_" + ".jpg", "JPEG")
         return reshaped_im
 
-    def LastRank(self, k, ShowFrist=False, Save=False):
+    def LastRank(self, k, ShowFrist=False, Save=False, SavePath="./results/"):
+        os.makedirs(SavePath, exist_ok=True)
         DiagR = np.zeros((self.row, self.col))
         DiagG = np.zeros((self.row, self.col))
         DiagB = np.zeros((self.row, self.col))
@@ -294,10 +299,11 @@ class SVD_Diag:
         if ShowFrist:
             im.show()
         if Save:
-            im.save("./results/" + "Last_Rank_" + str(k) + ".jpg", "JPEG")
+            im.save(SavePath + "Last_Rank_" + str(k) + ".jpg", "JPEG")
         return arr_newIM
 
-    def Filter(self, k, r_scale, g_scale, b_scale, ShowFrist=False, Save=False):
+    def Filter(self, k, r_scale, g_scale, b_scale, ShowFrist=False, Save=False, SavePath="./Filter/"):
+        os.makedirs(SavePath, exist_ok=True)
         DiagR = np.zeros((self.row, self.col))
         DiagG = np.zeros((self.row, self.col))
         DiagB = np.zeros((self.row, self.col))
@@ -331,7 +337,7 @@ class SVD_Diag:
         if ShowFrist:
             im.show()
         if Save:
-            im.save("./Filter/" + str(r_scale)+"_"+ str(g_scale)+"_"+str(b_scale)+"_"+ "Filter_" + ".jpg", "JPEG")
+            im.save(SavePath + str(r_scale)+"_"+ str(g_scale)+"_"+str(b_scale)+"_"+ "Filter_" + ".jpg", "JPEG")
         return arr_newIM
 
     def HSV(self, k, h_scale, s_scale, v_scale, ShowFrist=False, Save=False):
@@ -399,6 +405,14 @@ class SVD_Diag:
         else:
             return digit
 
+    def greater0_minus(self, digit, high, low=0):
+        if digit < 0:
+            return 0
+        elif digit >= high:
+            return high - 1
+        else:
+            return digit
+
     def even(self, imageOneChannel):
         for row in range(self.row):
             for col in range(self.col):
@@ -425,7 +439,8 @@ class SVD_Diag:
         else:
             return digit
 
-    def FisrtRank_With_even(self, k, ShowFrist=False, Save=False):
+    def FisrtRank_With_even(self, k, ShowFrist=False, Save=False, SavePath='./first/', FontColor=(255, 0, 0, 255)):
+        os.makedirs(SavePath,exist_ok=True)
         print("FirstRankWithEven")
         DiagR = np.zeros((self.row, self.col))
         DiagG = np.zeros((self.row, self.col))
@@ -459,14 +474,15 @@ class SVD_Diag:
 
         im = Image.fromarray(np.uint8(reshaped_im))
         draw = ImageDraw.Draw(im)
-        draw.text((20, 60), "Rank:"+str(k), fill=(255, 0, 0, 255))
+        draw.text((20, 60), "Rank:"+str(k), fill=FontColor)
         if ShowFrist:
             im.show()
         if Save:
-            im.save("./first/" + "First_Rank_Even_"+str(k) + ".jpg", "JPEG")
+            im.save(SavePath + "First_Rank_Even_"+str(k) + ".jpg", "JPEG")
         return reshaped_im
 
-    def ExceptFirstRank(self, k, ShowFrist=False, Save=False):
+    def ExceptFirstRank(self, k, ShowFrist=False, Save=False, SavePath="./except/"):
+        os.makedirs(SavePath, exist_ok=True)
         DiagR = np.zeros((self.row, self.col))
         DiagG = np.zeros((self.row, self.col))
         DiagB = np.zeros((self.row, self.col))
@@ -498,12 +514,18 @@ class SVD_Diag:
         if ShowFrist:
             im.show()
         if Save:
-            im.save("./except/" + "Except_First_Rank_" + str(k+1) + ".jpg", "JPEG")
+            im.save(SavePath + "Except_First_Rank_" + str(k+1) + ".jpg", "JPEG")
         return reshaped_im
 
-    def Mosaaic(self, scale=3, ShowFrist=False, Save=False):
+    def Mosaaic(self, scale=3, ShowFrist=False, Save=False, SavePath="./Mossaic/", FontColor=(255, 0, 0, 255), FileName=''):
+        print("Now Dealing With Mossaic scale:", str(scale))
+        os.makedirs(SavePath, exist_ok=True)
         MossaicImage = np.zeros((self.row, self.col, self.channel))
         eachRow_has_col = self.col//scale
+
+        #####################################################
+        #####################################################
+
         for row in range(self.row):
             for col in range(self.col):
                 index = (row // scale) * eachRow_has_col + (col // scale)
@@ -511,11 +533,12 @@ class SVD_Diag:
                 sumG = 0
                 sumB = 0
                 total =(scale * scale)
+                ###!!!!### the following circle should be removed out of the outter circle, it's too slow when scale is large
                 for i in range(scale):
                     for j in range(scale):
-                        sumR += self.IM[(row // scale)*scale + i, (col // scale)*scale + j, 0]
-                        sumG += self.IM[(row // scale)*scale + i, (col // scale)*scale + j, 1]
-                        sumB += self.IM[(row // scale)*scale + i, (col // scale)*scale + j, 2]
+                        sumR += self.IM[self.greater0_minus_row((row // scale)*scale + i), self.greater0_minus_col((col // scale)*scale + j), 0]
+                        sumG += self.IM[self.greater0_minus_row((row // scale)*scale + i), self.greater0_minus_col((col // scale)*scale + j), 1]
+                        sumB += self.IM[self.greater0_minus_row((row // scale)*scale + i), self.greater0_minus_col((col // scale)*scale + j), 2]
                 MossaicImage[row, col, 0] = sumR//total
                 MossaicImage[row, col, 1] = sumG//total
                 MossaicImage[row, col, 2] = sumB//total
@@ -523,21 +546,60 @@ class SVD_Diag:
         MossaicArr = np.asarray(MossaicImage).reshape(self.row, self.col, self.channel)
         im = Image.fromarray(np.uint8(MossaicArr))
         draw = ImageDraw.Draw(im)
-        draw.text((20, 60), "Rank:"+str(self.smaller//scale), fill=(255, 0, 0, 255))
+        draw.text((20, 60), "Rank:"+str(self.smaller//scale), fill=FontColor)
         if ShowFrist:
             im.show()
         if Save:
-            im.save("./Mossaic/" + "Mossiac_Rank" + str(self.smaller//scale) + ".jpg", "JPEG")
+            im.save(SavePath + FileName +"Mossiac_Rank" + str(self.smaller//scale) + ".jpg", "JPEG")
         return MossaicArr
 
+    def MosaaicSpeedUp(self, scale=3, ShowFrist=False, Save=False, SavePath="./Mossaic/", FontColor=(255, 0, 0, 255),
+                FileName=''):
+        print("Now Dealing With Mossaic scale:", str(scale))
+        os.makedirs(SavePath, exist_ok=True)
+        MossaicImage = np.zeros((self.row, self.col, self.channel))
+        eachRow_has_col = self.col // scale
 
-####################################
+        #####################################################
+        MossaicStore = np.zeros((self.row // scale + 1, self.col // scale + 1, 3))
+        for i in range(self.row // scale):
+            for j in range(self.col // scale):
+                sumR = 0
+                sumG = 0
+                sumB = 0
+                for ii in range(scale):
+                    for jj in range(scale):
+                        sumR += self.IM[i*scale+ii, j*scale+jj, 0]
+                        sumG += self.IM[i*scale+ii, j*scale+jj, 0]
+                        sumB += self.IM[i*scale+ii, j*scale+jj, 0]
+                MossaicStore[i, j, 0] = sumR
+                MossaicStore[i, j, 1] = sumG
+                MossaicStore[i, j, 2] = sumB
+        #####################################################
+
+        for row in range(self.row):
+            for col in range(self.col):
+                total = (scale * scale)
+                MossaicImage[row, col, 0] = MossaicStore[(row // scale), (col // scale), 0] // total
+                MossaicImage[row, col, 1] = MossaicStore[(row // scale), (col // scale), 1] // total
+                MossaicImage[row, col, 2] = MossaicStore[(row // scale), (col // scale), 2] // total
+
+        MossaicArr = np.asarray(MossaicImage).reshape(self.row, self.col, self.channel)
+        im = Image.fromarray(np.uint8(MossaicArr))
+        draw = ImageDraw.Draw(im)
+        draw.text((20, 60), "Rank:" + str(self.smaller // scale), fill=FontColor)
+        if ShowFrist:
+            im.show()
+        if Save:
+            im.save(SavePath + FileName + "Mossiac_Rank" + str(self.smaller // scale) + ".jpg", "JPEG")
+        return MossaicArr
+###################################
 im = np.asarray(Image.open('NT.jpg'))
 print(im.shape)
 NT = SVD_Diag(im)
 
 # NT.ExceptFirstRank(-1, True, True)
-
+#
 # _ = NT.Rank(0, True, True)
 # ########Filter###########
 # for i in np.arange(1,10,1):
@@ -548,22 +610,79 @@ NT = SVD_Diag(im)
 # NT.HSV(20, 1, 1, 1, False, True)
 # NT.LastRank(100, False, True)
 # NT.FisrtRank_With_even(100, False, True)
-
+#
 # NT.distributionDraw()
 # NT.RGB_distribution()
-
-
+#
+#
 # for i in range(-1, 290, 1):
 #     NT.ExceptFirstRank(i, False, True)
-
-
+#
+#
 # for i in range(1, 290, 1):
 #     NT.FisrtRank_With_even(i, False, True)
+#
+# NT.Mosaaic(5, False, True)
+# NT.FisrtRank_With_even(60, False, True)
+# _ = NT.RGB_dot(20, "Newton")
 
-NT.Mosaaic(5, False, True)
-NT.FisrtRank_With_even(60, False, True)
-# NT.RGB_dot()
+###################Distribution#########################
 
+# Mondrain = np.asarray(Image.open('grid_R.jpg'))
+# print(Mondrain.shape)
+# grid = SVD_Diag(Mondrain)
+
+# Picasso = np.asarray(Image.open('guernica_R.jpg'))
+# print(Picasso.shape)
+# Guernica = SVD_Diag(Picasso)
+
+
+MS = np.asarray(Image.open('xie_R.jpg'))
+print(MS.shape)
+XIE = SVD_Diag(MS)
+
+
+# ####################################################
+# R1, G1, B1 = grid.RGB_dot(20, "Mondrain_grid")
+# R2, G2, B2 = Guernica.RGB_dot(20, "Picasso_Guernica")
+#
+# plt.rcParams['axes.unicode_minus'] = False
+# fig, ax = plt.subplots()
+# ax.plot(range(len(R1)), R1, 'paleturquoise', label='Mondrain_grid')
+# ax.plot(range(len(G1)), G1, 'paleturquoise')
+# ax.plot(range(len(B1)), B1, 'paleturquoise')
+# ax.plot(range(len(R2)), R2, 'plum', label='Picasso_Guernica')
+# ax.plot(range(len(G2)), G2, 'plum')
+# ax.plot(range(len(B2)), B2, 'plum')
+# legend = ax.legend(loc='upper center', shadow=True, fontsize='x-large')
+# ax.set_title('Singular Value Distribution of Both')
+# plt.show()
+# ####################################################
+#
+# for i in range(1, 51, 1):
+#     grid.FisrtRank_With_even(i, False, True, "./Mondrain/", FontColor=(255, 255, 0, 255))
+# for i in range(1, 51, 1):
+#     Guernica.FisrtRank_With_even(i, False, True, "./Picasso/")
+#
+# Guernica.FisrtRank_With_even(200, False, True, "./Picasso/")
+# Guernica.FisrtRank_With_even(100, False, True, "./Picasso/")
+# grid.FisrtRank_With_even(100, False, True, "./Mondrain/", FontColor=(255, 255, 0, 255))
+
+# grid.Mosaaic(50, False, True, FontColor=(255, 255, 0, 255))
+# grid.Mosaaic(4, False, True, FontColor=(255, 255, 0, 255))
+# for i in range(1, 101, 10):
+#     grid.Mosaaic(i, False, True, FontColor=(255, 255, 0, 255), FileName='RBY')
+# for i in range(1, 101, 10):
+#     Guernica.Mosaaic(i, False, True, FontColor=(255, 255, 0, 255), FileName='Gurenica')
+
+# for i in [2, 4, 5, 10, 20, 40]:
+#     grid.Mosaaic(i, False, True, FontColor=(255, 255, 0, 255), FileName='RBY')
+# for i in [2, 4, 5, 10, 20, 40]:
+#     Guernica.Mosaaic(i, False, True, FontColor=(255, 255, 0, 255), FileName='Gurenica')
+# Guernica.MosaaicSpeedUp(40, False, True, FontColor=(255, 255, 0, 255), FileName='SpeedUp')
+
+for i in range(1, 51, 1):
+    XIE.FisrtRank_With_even(i, False, True, "./XIE/", FontColor=(255, 255, 0, 255))
 
 ######################Merge############################
 # im = np.asarray(Image.open('NTResized.jpg'))
